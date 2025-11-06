@@ -2,7 +2,7 @@
 \usepackage{arxiv}
 
 \usepackage[utf8]{inputenc}
-\usepackage[english, russian]{babel}
+\usepackage[english]{babel}
 \usepackage[T1]{fontenc}
 \usepackage{url}
 \usepackage{booktabs}
@@ -13,24 +13,26 @@
 \usepackage{graphicx}
 \usepackage{natbib}
 \usepackage{doi}
+\usepackage{amsmath}
 
 
 
-\title{A template for the \emph{arxiv} style}
+\title{Agentic Environments for Scientific Review Generation}
 
-\author{ David S.~Hippocampus\thanks{Use footnote for providing further
-		information about author (webpage, alternative
-		address)---\emph{not} for acknowledging funding agencies.} \\
-	Department of Computer Science\\
-	Cranberry-Lemon University\\
-	Pittsburgh, PA 15213 \\
-	\texttt{hippo@cs.cranberry-lemon.edu} \\
+\author{ Gleb Dolgushev \\
+% \thanks{Use footnote for providing further
+% information about author (webpage, alternative
+% address)---\emph{not} for acknowledging funding agencies.} \\
+	faculty of Computational Mathematics \\ and Cybernetics\\
+	Moscow State University\\
+	Moscow, Russia \\
+	\texttt{s02220087@gse.cs.msu.ru} \\
 	%% examples of more authors
 	\And
-	Elias D.~Striatum \\
-	Department of Electrical Engineering\\
-	Mount-Sheikh University\\
-	Santa Narimana, Levand \\
+	Roman Ishenko \\
+	faculty of Computational Mathematics \\ and Cybernetics\\
+	Moscow State University\\
+	Moscow, Russia \\
 	\texttt{stariate@ee.mount-sheikh.edu} \\
 	%% \AND
 	%% Coauthor \\
@@ -56,7 +58,7 @@
 %%% Once the PDF is generated, you can check the metadata with
 %%% $ pdfinfo template.pdf
 \hypersetup{
-pdftitle={A template for the arxiv style},
+pdftitle={Agentic Environments for Scientific Review Generation},
 pdfsubject={q-bio.NC, q-bio.QM},
 pdfauthor={David S.~Hippocampus, Elias D.~Striatum},
 pdfkeywords={First keyword, Second keyword, More},
@@ -66,38 +68,85 @@ pdfkeywords={First keyword, Second keyword, More},
 \maketitle
 
 \begin{abstract}
-	\lipsum[1]
+This paper explores the application of agent-based systems to the task of automated scientific review generation over large document collections. This task requires handling long contexts, planning, and ensuring high factual accuracy - properties where agent-based methods have the greatest advantage. It is particularly relevant given the rapid growth of scientific publications, while existing solutions mostly focus on web search and question-answering scenarios. We investigate the applicability of architectures based on compact language-model agents equipped with specialized tools and provide an environment oriented toward subsequent reinforcement learning. Experimental results show that the proposed architecture achieves performance comparable to systems built on substantially larger models, and that the key factor for improving quality lies in the use of memory mechanisms.
 \end{abstract}
 
-
-\keywords{First keyword \and Second keyword \and More}
-
 \section{Introduction}
-Благодаря улучшению структурированности рассуждений и фактологической точности генераций большие языковые модели (LLM) стали повсеместным инструментом в научных рабочих процессах, таких как предметно-ориентированный вопросно-ответный поиск, суммаризация и подготовка научных обзоров. Объём и тематическое разнообразие научных публикаций неуклонно растут, продолжая отдаляться от пределов того, что отдельные исследователи или малые группы способны анализировать на регулярной основе, мотивируя развитие методов автоматизации решения этих задач. Подготовка качественных обзоров на таком материале остаётся технически сложной для существующих решений: она требует качественного извлечения информации, выделения главных методов и результатов, атрибуции, основанной на корректном цитировании, и устойчивой работы в условиях сверхдлинного контекста. В данной работе предлагается провести исследование эффективности в описанных условиях агентных решений.
+Due to improved reasoning structure and factual consistency, large language models (LLMs) have become a widespread tool in scientific workflows such as domain-specific QA, summarization, and review writing. The volume and diversity of scientific publications continue to grow, exceeding what individual researchers or small groups can regularly analyze, motivating the development of automated solutions. Producing high-quality reviews remains technically challenging for existing approaches: it requires effective information extraction, identification of key methods and results, citation-based attribution, and stable operation under extremely long contexts. This work investigates the effectiveness of agent-based approaches under these conditions.
 
-Ранние подходы к задаче многодокументной суммаризации заключались в применении генеративных трансформерных моделей, однако по мере роста требований к размерам корпусов и длине контекстов они быстро эволюционировали в сторону RAG, где механизм извлечения релевантных фрагментов заземляет генерацию на фиксированном наборе источников и повышает фактологическую точность [1]. При этом в практике RAG широко используются сложные многоитерационные пайплайны, вручную спроектированные исследователями и во многом опирающиеся на экспертную интуицию, что предопределяет последовательность стадий извлечения, отбора и генерации [1]. Параллельно предпринимаются попытки применять RL к составлению обзоров: варьируются способы построения сигналов качества и агрегирования предпочтений (включая обучение по человеческим оценкам и по правкам текста), причём наибольшую практическую отдачу демонстрирует RLHF, а при дефиците разметки — его масштабируемая альтернатива RLAIF [1]. Дальнейшее развитие идей пошагового планирования проявилось в схемах ReAct и многоагентных конвейерах «writer–critic», применяемых к близким по характеру задачам длинного контекста; по сравнению с жёстко заданными RAG-скриптами такие решения обеспечивают большую гибкость распределения ролей и согласования промежуточных выводов [1]. Наконец, в задачах веб-поиска эффективность показали методы дообучения агентных систем с использованием RL, что подтверждает перспективность аналогичных стратегий для обзорной генерации [1].
+Early approaches to multi-document summarization relied on generative transformer models; however, as corpus size and context length increased, they evolved toward RAG architectures, where retrieval of relevant fragments grounds generation on fixed sources and improves factual accuracy (\cite{lewis2020retrieval}). In practice, RAG pipelines often involve complex multi-stage processes manually designed by researchers, heavily dependent on expert intuition to define retrieval, selection, and generation steps  (\cite{zhang2024chain}). In parallel, reinforcement learning (RL) has been applied to review generation, with varying designs of quality signals and preference aggregation (including training from human feedback and textual edits). RLHF has shown the best results, while RLAIF serves as a scalable alternative in low-annotation settings (\cite{ouyang2022training}, \cite{lee2023rlaif}). The ideas of step-by-step reasoning further evolved into ReAct and multi-agent pipelines with cooperating writer and critic models for long-context tasks (\cite{yao2022react}, \cite{shinn2023reflexion}). Compared to rigid RAG scripts, such systems enable more flexible role distribution and coordination of intermediate reasoning. Moreover, RL-trained agent systems have proven effective in web-search tasks, suggesting the potential of similar strategies for review generation (\cite{qi2024webrl}).
 
-Несмотря на существенный прогресс, текущие решения остаются ограниченными. RAG‑пайплайны задают жёсткую последовательность шагов и плохо моделируют межстатейные связи, поэтому при росте корпуса дают фрагментарные, слабо таксономизированные «обзоры». Агентные подходы применялись в основном к специфическим задачам (таблицы, длинные нарративы) и не рассматривались как носители RL‑обучения; между тем именно они предоставляют естественный каркас для обучения политики взаимодействия с инструментами и памятью. В задачах сверхдлинного контекста критически важен способ переноса и сжатия рабочего контекста между итерациями (working memory), однако наиболее результативные методы краткосрочной памяти  не применялись к построению научных обзоров. Работы по RL для суммаризации преимущественно оптимизируют прокси‑метрики и почти не интегрируются с многоагентной координацией, что ограничивает перенос на научные обзоры. Наконец, существующие системы преимущественно решают задачу поиска, тогда как главные узкие места лежат в обработке, агрегировании и проверяемой атрибуции информации.
+Despite significant progress, current solutions remain limited. RAG pipelines impose fixed sequential stages and poorly model inter-article relations, yielding fragmented and weakly structured reviews as the corpus grows. Agent-based methods have mostly targeted narrow domains (e.g., tables, long narratives) and were not explored as RL-trainable systems—although they naturally support policy learning for tool and memory interaction. In long-context tasks, effective transfer and compression of working memory between iterations is critical, yet the most successful short-term memory methods have not been applied to review writing. RL approaches to summarization typically optimize proxy metrics and rarely integrate multi-agent coordination, limiting their applicability to scientific reviews. Finally, most existing systems focus on retrieval, while the main bottlenecks lie in information aggregation and verifiable attribution.
 
-Мы разрабатывали агентную систему, адаптированную под задачу составления научных обзоров. Её ядро составляют два взаимодействующих агента — автор и критик, координирующих генерацию и проверку текста. Автор формирует черновой обзор, используя специализированные инструменты для работы с источниками: семантический поиск по фиксированному корпусу, извлечение цитат, переформулирование фрагментов и управление краткосрочной памятью, которая агрегирует промежуточные суждения и помогает поддерживать когерентность между разделами. Критик анализирует высказывания автора, проверяя их на соответствие исходным статьям, выявляет неатрибутированные утверждения также опираясь на рабочую или эпизодическую память. Мы реализовали  среду для дальнейшего обучения с подкреплением, включающую: инструменты дл яработы с фиксированным корпусом текстов; подсистему памяти; протокол пошагового взаимодействия между двумя агентами с трассировкой действий и снимками памяти для воспроизводимости; различные функцийи награды (оценивающие покрытие, фактологичность, организационную согласованность) и сценарии оценки.
+We developed an agent system tailored for scientific review generation. Its core consists of two interacting agents—a writer and a critic—coordinating text generation and verification. The writer drafts the review using specialized tools: semantic search over a fixed corpus, citation extraction, fragment rephrasing, and working memory management, which aggregates intermediate insights and maintains coherence across sections. The critic analyzes the writer’s statements, verifies them against source documents, and identifies ungrounded claims using both working and episodic memory. We implemented an environment for further reinforcement learning that includes: tools for corpus interaction; a memory subsystem; a step-by-step interaction protocol with traceable actions and memory snapshots for reproducibility; multiple reward functions (evaluating coverage, factuality, and organizational coherence); and evaluation scenarios.
 
-Мы представили новую постановку задачи генерации обзора, исключив компоненту поиска, что позволило изолированно исследовать способности агента к анализу и агрегации информации. Мы показали, что компактные модели, работающие в агентном режиме, достигают качества, сопоставимого с существенно более крупными моделями на тех же задачах генерации обзоров. Анализ влияния модулей памяти показал, что его применение критически важно для решения рассматриваемой проблемы и дает значительный прирост метрик фактологической точности генерации и ее связности. Наконец, мы представляем фреймворк с реализацией агентной среды для составления обзоров по фиксированным корпусам документов для последующих исследований и воспроизводимого обучения.
-\section{Headings: first level}
-\label{sec:headings}
+We introduce a new formulation of the review generation task that excludes the retrieval component, enabling isolated analysis of the agent’s reasoning and aggregation abilities. We demonstrate that compact models operating in an agentic mode achieve quality comparable to much larger models on the same review tasks. The analysis of memory modules shows that their use is critical for this problem, significantly improving factual accuracy and textual coherence. Finally, we present a framework implementing the agent environment for review generation on fixed document corpora, supporting reproducible experimentation and further research.
 
-\lipsum[4] See Section \ref{sec:headings}.
+\section{Related Work}
+\paragraph{From Retrieval-Augmented Generation to Agent Systems}
+Early works addressing similar problems used RAG (\cite{lewis2020retrieval}), suffering from efficient aggregation mechanism. To cope with this disadvantage, solutions with modified pipelines were built (\cite{zhang2024chain}). But they were mostly based on researcher intuition, static, lacking adaptive, iterative control. Agent-based approaches enable more flexible alternation. ReAct demonstrated that interleaving reasoning and action reduces hallucinations and improves QA performance (\cite{yao2022react}). Reflexion extends this idea: agents store prior decisions and verbal experiences, analyze mistakes, and adjust future actions (\cite{shinn2023reflexion}). For long-context tasks, LongAgent and MA-RAG employ multiple worker agents and managers reading text in parts and synthesizing answers (\cite{zhao2024longagent}, \cite{nguyen2025ma}), scaling LLMs to longer inputs. However, the success of agent systems is highly known in QA tasks, not in overview generation.
+
+\paragraph{Memory Mechanisms in Agent Systems}
+Simplest agent architectures pass all information between iterations directly through the model context, leading to input growth and poor scalability in deep reasoning tasks. Scientific review writing requires many iterations of information gathering and processing under large contexts. A straightforward solution is adding a separate aggregation model (\cite{shinn2023reflexion}, \cite{yu2025memagent}, \cite{Li2025TongyiDT}). More advanced solutions employ specialized memory architectures that index accumulated insights, context, and interaction history, accessible later via dedicated tools (\cite{packer2023memgpt}, \cite{xu2025mem}). Recent studies introduce graph-based modifications that reduce token processing costs and improve generalization in long dialogues (\cite{chhikara2025mem0}, \cite{zhou2025mem1}). In our task, interest in memory mechanisms stems from their absence in prior work on automated review generation.
+
+\paragraph{Reinforcement Learning for Summarization}
+RL has been used to mitigate exposure bias and align generation with target metrics. Paulus et al. combined MLE and policy gradient, reducing repetitions and improving readability [18]. Later, new reward functions were proposed: DSR employs semantic embeddings instead of ROUGE to encourage diversity and fluency [42]; RewardsOfSum introduces RISK-based rewards for stricter alignment [21]; Topic-guided RL rewards topical consistency in MDS [22]. Inverse RL learns reward functions from examples, avoiding manual task weighting [43]. Other studies use BERTScore as reward to improve quality and reduce redundancy [23], apply RL with AI feedback (RLAIF) to replace costly RLHF (\cite{lee2023rlaif}), and demonstrate summary generation without reference data [24]. However, RL complexity, the need for many rollouts, and the lack of standardized rewards still limit practical adoption.
+
+\paragraph{Evaluation of Scientific Review Quality}
+Assessing review quality remains difficult due to the scarcity of datasets containing reference reviews, as producing them requires substantial human effort. Until recently, the only relevant dataset was Multi-XScience, which included only Related Work sections or abstracts (\cite{lu-etal-2020-multi-xscience}). Only in the past year several works have addressed this via automatic and manual filtering of the S2ORC dataset (\cite{lo-etal-2020-s2orc}) (\cite{surveygen}, \cite{su2025surge}). Many open challenges concern abstractive summarization evaluation. Classical metrics such as ROUGE (\cite{lin-2004-rouge}) fail to capture semantic similarity, leading to LLM-based alternatives (\cite{zhang2019bertscore}). For evaluating individual aspects of generated reviews without references, metrics such as FineSure (\cite{song2024finesure}) and G-eval (\cite{liu-etal-2023-g}) were introduced, both showing high correlation with human judgments.
+
+\section{Problem statement}
+\paragraph{Data}
+Let the dataset be $\{(\mathcal{D}_i, G_i)_{i=1}^N\}$, where $(\mathcal{D}_i={d_{i1},\dots,d_{im_i}})$ is a closed set of source documents and $G_i$ is written by experts gold overview. By construction, $G_i$ cites only items from $\mathcal{D}_i$, no external data is used, $G_i$ can contain claims based on info in $\mathcal{D}_i$ but not directly mentioned in it.
+
+\paragraph{Task mapping}
+The model implements a mapping
+$$
+f_\theta:\ \mathcal{P}(\mathcal{D}_i)\ \longrightarrow\ \hat{S}_i\in \Sigma^*,
+$$
+producing a single sequence $\hat{S}_i$ (the review) that contains in-text citations referring to $\mathcal{D}_i$. We do not hard-constrain attribution.
+
+\paragraph{Agent formulation}
+We formalize the generator as an \textbf{MDP} $(\mathcal{S},\mathcal{A},T,R,\gamma)$. A state $s_t\in\mathcal{S}$ contains the partial draft, tool outputs (closed-corpus retrieval over chunks of $\mathcal{D}_i)$, and an agent memory $m_t$. Actions $a_t\in\mathcal{A}$ include $\textsc{Retrieve}(q,k)$, $\textsc{Write}(\Delta)$, $\textsc{Cite}(r)$, $\textsc{MemUpdate}(\cdot)$, and $\textsc{Stop}$. The transition $T$ advances the draft and memory given tool results; $\gamma\in[0,1]$. In this work, we do \textbf{zero-shot} generation and evaluate only terminal outputs (no policy learning), while the same MDP supports future RL by defining episodic rewards from the external metrics below. Also, we can easily formalize all RAG-like pipelines as similar iterative interactions with the environment.
+
+\subsection{External metrics}
+For the most comprehensive and comprehensive assessment, the following metrics were selected.
+\paragraph{BERTScore} Determine semantic similarity to $G_i$. With contextual token embeddings, recall and precision are
+$$
+R_{\text{BERT}}=\frac{1}{|x|}\sum_{x_i\in x}\max_{\hat{x}_j\in \hat{x}} x_i^\top \hat{x}_j,\quad
+P_{\text{BERT}}=\frac{1}{|\hat{x}|}\sum_{\hat{x}_j\in \hat{x}}\max_{x_i\in x} x_i^\top \hat{x}_j,\quad
+F_{\text{BERT}}=\frac{2P_{\text{BERT}}R_{\text{BERT}}}{P_{\text{BERT}}+R_{\text{BERT}}}
+$$
+
+\paragraph{FineSurE}
+FineSurE is a fine-grained LLM-based evaluator for summarization along faithfulness, completeness, and conciseness.
+Given source documents $D$ and a generated summary $S={s_1,\dots,s_N}$, sentence-level fact checking yields $S_{\text{fact}}\subseteq S$ (sentences with no factual error), and
+$$
+\text{Faithfulness}(D,S)=\frac{|S_{\text{fact}}|}{|S|}.
+$$
+With a key-fact list $K={k_1,\dots,k_M}$ build a bipartite alignment $E={(k,s):k\to s}$ between key-facts and summary sentences; then
+$$
+\text{Completeness}(K,S)=\frac{|\{k:(k,s)\in E\}|}{|K|},\qquad
+\text{Conciseness}(K,S)=\frac{|\{s:(k,s)\in E\}|}{|S|}.
+$$
+For sentence-level meta-evaluation it reports balanced accuracy
+$$
+bACC=\tfrac{1}{2}(TPR+TNR).
+$$
+
+\paragraph{G-Eval}
+G-Eval is a rubric-based, reference-free evaluator that uses an LLM with chain-of-thought and a form-filling template.
+A prompt provides task introduction and evaluation criteria; the LLM generates evaluation steps and returns a discrete rating $s_i\in S$. The final continuous score is the probability-weighted expectation:
+$$
+\text{Score}=\sum_{i=1}^{n} p(s_i),s_i .
+$$
+Where $p(s_i)$ is probability of $s_i$ token calculated in the last layer of the generative model.
 
 \subsection{Headings: second level}
-\lipsum[5]
-\begin{equation}
-	\xi _{ij}(t)=P(x_{t}=i,x_{t+1}=j|y,v,w;\theta)= {\frac {\alpha _{i}(t)a^{w_t}_{ij}\beta _{j}(t+1)b^{v_{t+1}}_{j}(y_{t+1})}{\sum _{i=1}^{N} \sum _{j=1}^{N} \alpha _{i}(t)a^{w_t}_{ij}\beta _{j}(t+1)b^{v_{t+1}}_{j}(y_{t+1})}}
-\end{equation}
 
 \subsubsection{Headings: third level}
-\lipsum[6]
 
 \paragraph{Paragraph}
-\lipsum[7]
 
 
 
